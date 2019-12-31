@@ -25,6 +25,8 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import cn.refactor.library.SmoothCheckBox;
 import me.texy.treeview.base.BaseNodeViewBinder;
 import me.texy.treeview.base.BaseNodeViewFactory;
 import me.texy.treeview.base.CheckableNodeViewBinder;
@@ -136,21 +138,25 @@ public class TreeViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                     final CheckableNodeViewBinder viewBinder) {
         final View view = nodeView.findViewById(viewBinder.getCheckableViewId());
 
-        if (view instanceof Checkable) {
-            final Checkable checkableView = (Checkable) view;
-            checkableView.setChecked(treeNode.isSelected());
+        if (view instanceof SmoothCheckBox) {
+            final SmoothCheckBox checkableView = (SmoothCheckBox) view;
 
-            view.setOnClickListener(new View.OnClickListener() {
+            SmoothCheckBox.OnCheckedChangeListener listener = new SmoothCheckBox.OnCheckedChangeListener() {
                 @Override
-                public void onClick(View v) {
+                public void onCheckedChanged(SmoothCheckBox checkBox, boolean isChecked) {
                     boolean checked = checkableView.isChecked();
                     selectNode(checked, treeNode);
                     viewBinder.onNodeSelectedChanged(treeNode, checked);
                 }
-            });
+            };
+
+            checkableView.setOnCheckedChangeListener(null);
+            checkableView.setChecked(treeNode.isSelected(), false);
+            checkableView.setOnCheckedChangeListener(listener);
+
         } else {
             throw new ClassCastException("The getCheckableViewId() " +
-                    "must return a CheckBox's id");
+                    "must return a SmoothCheckBox's id");
         }
     }
 
